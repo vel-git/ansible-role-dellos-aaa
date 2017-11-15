@@ -1,193 +1,189 @@
-AAA Role for Dell EMC Networking OS
-===================================
+AAA role
+========
 
-This role facilitates the configuration of Authentication Authorization Acccounting (AAA). It supports the configuration of TACACS and RADIUS server and AAA. This role is abstracted for dellos9.
+This role facilitates the configuration of authentication authorization acccounting (AAA). It supports the configuration of TACACS for dellos9, and the configuration of RADIUS server and AAA for dellos10. The AAA role requires an SSH connection for connectivity to a Dell EMC Networking device. You can use any of the built-in OS connection variables or the *provider* dictionary.
 
 Installation
 ------------
 
-```
-ansible-galaxy install Dell-Networking.dellos-aaa
-```
+    ansible-galaxy install Dell-Networking.dellos-aaa
 
-Requirements
-------------
-This role requires an SSH connection for connectivity to your Dell EMC Networking device. You can use any of the built-in OS connection variables or the ``provider`` dictionary.
-
-Role Variables
+Role variables
 --------------
 
-This role is abstracted using the ``ansible_net_os_name`` variable that can take the following value "dellos9".
+- Role is abstracted using the *ansible_net_os_name* variable that can take dellos9 and dellos10 values
+- If *dellos_cfg_generate* is set to true, the variable generates the role configuration commands in a file
+- Any role variable with a corresponding state variable set to absent negates the configuration of that variable
+- Setting an empty value for any variable negates the corresponding configuration
+- Variables and values are case-sensitive
 
-Any role variable with a corresponding state variable set to absent negates the configuration of that variable. For variables with no state variable, setting an empty value for the variable negates the corresponding configuration. The variables and its values are case-sensitive.
+**dellos_aaa keys**
 
-``dellos_aaa`` contains the following keys:
+| Key        | Type                      | Description                                             | Support               |
+|------------|---------------------------|---------------------------------------------------------|-----------------------|
+| ``radius_server``            | dictionary        | Configures the radius server (see ``radius_server.*``) | dellos9, dellos10 |
+| ``radius_server.key``        | string (required): 0,7,LINE | Configures the authentication key for the radius server | dellos9 |
+| ``radius_server.key_string`` | string            | Configures the user key string; variable takes the hidden user key string if value is 7; variable takes the unencrypted user key (clear-text) if value is 0; variable supported only if *radius_server.key* is 7 or 0 | dellos9 |
+| ``radius_server.retransmit`` | integer           | Configures the number of retransmissions | dellos9, dellos10  |
+| ``radius_server.timeout``    | integer           | Configures the timeout for retransmissions | dellos9, dellos10  |
+| ``radius_server.deadtime``   | integer           | Configures the server dead time | dellos9  |
+| ``radius_server.group``      | dictionary        | Configures the radius servers group (see ``group.*``) | dellos9 |  
+| ``group.name``               | string (required) | Configures the group name of the radius servers | dellos9  |
+| ``group.host``               | dictionary        | Configures the radius server host in the group (see ``host.*``) | dellos9 |
+| ``host.ip``                  | string            | Configures the radius server host address in the group | dellos9  |
+| ``host.key``                 | string (required): 0,7,LINE | Configures the authentication key | dellos9  |
+| ``host.key_string``          | string: 7,0            | Configures the user key string; variable takes the hidden user key string if value is 7; variable takes the unencrypted user key (clear-text) if value is 0; variable supported only if *host.key* is 7 or 0 | dellos9 |
+| ``host.retransmit``          | integer           | Configures the number of retransmissions | dellos9 |
+| ``host.auth_port``           | integer           | Configures the authentication port (0 to 65535) | dellos9  |
+| ``host.timeout``             | integer           | Configures the timeout for retransmissions | dellos9  |
+| ``host.state``               | string: present,absent         | Removes the host from group of radius server if set to absent | dellos9 |
+| ``group.vrf``                | dictionary        | Configures the VRF for radius servers in the group (see ``vrf.*``) | dellos9 |  
+| ``vrf.vrf_name``             | string (required) | Configures the name of VRF for the radius server group | dellos9 |
+| ``vrf.source_intf``          | integer           | Configures the source interface for outgoing packets from servers in the group | dellos9 |
+| ``vrf.state``                | string: present,absent         | Removes the VRF from group of radius servers if set to absent | dellos9  |
+| ``group.state``              | string: present,absent         | Removes the radius server group if set to absent | dellos9  |
+| ``radius_server.host``       | dictionary        | Configures the radius server host (see ``host.*``) | dellos9, dellos10  |
+| ``host.ip``                  | string            | Configures the radius server host address | dellos9, dellos10  |
+| ``host.key``                 | string (required); 0,7,LINE           | Configures the authentication key | dellos9, dellos10  |
+| ``host.key_string``          | string            | Configures the user key string; variable takes the hidden user key string if value is 7; variable takes the unencrypted user key (clear-text) if value is 0; variable supported only if *host.key* is 7 or 0 | dellos9 | 
+| ``host.retransmit``          | integer           | Configures the number of retransmissions | dellos9 |
+| ``host.auth_port``           | integer           | Configures the authentication port (0 to 65535)  | dellos9, dellos10  |
+| ``host.timeout``             | integer           | Configures timeout for retransmissions | dellos9 |
+| ``host.state``               | string: present,absent         | Removes the radius server host if set to absent | dellos9, dellos10  |
+| ``tacacs_server``            | dictionary        | Configures the tacacs server (see ``tacacs_server.*``)| dellos9 |
+| ``tacacs_server.key``        | string (required): 0,7,LINE           | Configures the authentication key for tacacs server | dellos9 |
+| ``tacacs_server.key_string`` | string            | Configures the user key string; variable takes the hidden user key string if value is 7; variable takes the unencrypted user key (clear-text) if value is 0; variable supported only if *tacacs_server.key* is 7 or 0 | dellos9 |
+| ``tacacs_server.group``      | dictionary        | Configures the group of tacacs servers (see ``group.*``) | dellos9 |
+| ``group.name``               | string (required)  | Configures the group name of the tacacs servers | dellos9  |
+| ``group.host``               | dictionary        | Configures the tacacs server host in the group (see ``host.*``) | dellos9  |
+| ``host.ip``                  | string            | Configures the tacacs server host address in the group | dellos9  |
+| ``host.key``                 | string (required): 0,7,LINE           | Configures the authentication key of the tacacs server host | dellos9 |
+| ``host.key_string``          | string            | Configures the user key string; variable takes the hidden user key string if value is 7; variable takes the unencrypted user key (clear-text) if value is 0; variable supported only *host.key* is 7 or 0 | dellos9 |
+| ``host.retransmit``          | integer           | Configures the number of retransmissions | dellos9 |
+| ``host.auth_port``           | integer           | Configures the authentication port (0 to 65535) | dellos9  |
+| ``host.timeout``             | integer           | Configures timeout for retransmissions | dellos9  |
+| ``host.state``               | string: present,absent         | Removes the host from group of tacacs server if set to absent | dellos9 |
+| ``group.vrf``                | dictionary        | Configures VRF for tacacs servers in the group (see ``vrf.*``) | dellos9  |
+| ``vrf.vrf_name``             | string (required) | Configures the name of VRF for tacacs server group | dellos9 |
+| ``vrf.source_intf``          | integer           | Configures source interface for outgoing packets from servers in the group | dellos9 |
+| ``vrf.state``                | string: present,absent         | Removes the VRF from group of tacacs server if set to absent | dellos9 |
+| ``group.state``              | string: present,absent         | Removes the tacacs server group if set to absent | dellos9 |
+| ``tacacs_server.host``       | dictionary        | Configures the tacacs server host (see ``host.*``) | dellos9 |
+| ``host.ip``                  | string            | Configures the tacacs sever host address | dellos9 |
+| ``host.key``                 | string (required): 0,7,LINE           | Configures the authentication key | dellos9 |
+| ``host.key_string``          | string            | Configures the user key string; variable takes the hidden user key string if value is 7; variable takes the unencrypted user key (clear-text) if value is 0; variable supported only if *host.key* is 7 or 0 | dellos9  |
+| ``host.retransmit``          | integer           | Configures the number of retransmissions | dellos9 |
+| ``host.auth_port``           | integer           | Configures the authentication port (0 to 65535) | dellos9 |
+| ``host.timeout``             | integer           | Configures the timeout for retransmissions | dellos9 |
+| ``host.state``               | string: present,absent         | Removes the tacacs server host if set to absent | dellos9 |
+| ``aaa_accounting``           | dictionary        | Configures accounting parameters (see ``aaa_accounting.*``) | dellos9 |
+| ``aaa_accounting.commands``  | list              | Configures accounting for exec (shell) and config commands (see ``commands.*``) | dellos9 |
+| ``commands.enable_level``    | integer           | Configures enable level for accounting of commands | dellos9 |
+| ``commands.role_name``       | string            | Configures user role for accounting of commands; variable is mutually exclusive with ``enable_level`` | dellos9 |
+| ``commands.accounting_list_name`` | integer      | Configures named accounting list for commands | dellos9  |
+| ``commands.no_accounting``   | boolean           | Configures no accounting of commands | dellos9 |
+| ``commands.record_option``   | string: start-stop,stop-only,wait-start        | Configures options to record data | dellos9 |
+| ``commands.state``           | string: present,absent         | Removes the named accounting list for the commands if set to absent | dellos9 |
+| ``aaa_accounting.exec``      | list              | Configures accounting for EXEC (shell) commands (see ``exec.*``) | dellos9 |
+| ``exec.accounting_list_name`` | string           | Configures named accounting list for exec commands | dellos9 |
+| ``exec.no_accounting``       | boolean           | Configures no accounting of EXEC commands | dellos9  |
+| ``exec.record_option``       | string: start-stop,stop-only,wait-start      | Configures options to record data | dellos9 |
+| ``exec.state``               | string: present,absent         | Removes the named accounting list for the exec commands if set to absent | dellos9 |
+| ``aaa_accounting.suppress``  | boolean           | Suppresses accounting for users with NULL username | dellos9|
+| ``aaa_accounting.dot1x``     | string: none,start-stop,stop-only,wait-start        | Configures accounting for dot1x events | dellos9 |
+| ``aaa_accounting.rest``      | string:none,start-stop,stop-only,wait-start        | Configures accounting for rest interface events | dellos9  |
+| ``aaa_authorization``        | dictionary        | Configures authorization parameters (see ``aaa_authorization.*``) | dellos9  |
+| ``aaa_authorization.commands`` | list            | Configures authorization for EXEC (shell) and config commands (see ``commands.*``)| dellos9 |
+| ``commands.enable_level``    | integer           | Configures enable level for authorization of commands | dellos9  |
+| ``commands.role_name``       | string            | Configures user role for authorization of commands; mutually exclusive with ``enable_level`` | dellos9  |
+| ``commands.authorization_list_name`` | string         | Configures named authorization list for commands | dellos9 |
+| ``commands.authorization_method`` | string: none         | Configures no authorization of commands | dellos9  |
+| ``commands.use_data``        | string: local,tacacs+        | Configures data used for authorization | dellos9  |
+| ``commands.state``           | string: present,absent         | Removes the named authorization list for the commands if set to absent | dellos9 |
+| ``aaa_authorization.config_commands`` | boolean        | Configures authorization for configuration mode commands | dellos9 |
+| ``aaa_authorization.role_only`` | boolean        | Configures validation of authentication mode for user role | dellos9 |
+| ``aaa_authorization.exec``   | list              | Configures authorization for EXEC (shell) commands (see ``exec.*``) | dellos9 |
+| ``exec.authorization_list_name`` | string        | Configures named authorization list for EXEC commands | dellos9  |
+| ``exec.authorization_method`` | string: none         | Configures no authorization of EXEC commands | dellos9  |
+| ``exec.use_data``            | string: local,tacacs+        | Configures data used for authorization | dellos9 |
+| ``exec.state``               | string: present,absent         | Removes the named authorization list for the EXEC commands if set to absent | dellos9  |
+| ``aaa_authentication``       | dictionary        | Configures authentication parameters (see ``aaa_authentication.*``) | dellos9, dellos10  |
+| ``aaa_authentication.local_auth`` | dictionary   | Configures local authentication parameters (see ``aaa_authentication.local_auth.*``)| dellos10 |
+| ``aaa_authetication.local_auth.radius`` | boolean | Configures authentication method as local along with radius if set to true | dellos10 |
+| ``aaa_authentication.radius_auth`` | dictionary | Configures radius authentication parameters (see ``aaa_authentication.radius_auth.*``) | dellos10 |
+| ``aaa_authetication.radius_auth.local`` | boolean | Configures authentication method as radius along with local if set to true | dellos10 |
+| ``aaa_authentication.re_authenticate`` | boolean | Configures re-authenticate by enable if set to true on dellos10 devices | dellos10 |
+| ``aaa_radius``                | dictionary       | Configures AAA for radius group of servers (see ``aaa_radius.*``) | dellos9 |
+| ``aaa_radius.group``          | string           | Configures name of the radius group of servers for AAA | dellos9  |
+| ``aaa_radius.auth_method``    | string: pap,mschapv2    | Configures authentication method of radius group of servers for AAA | dellos9 |
+| ``aaa_tacacs``                | dictionary       | Configures AAA for tacacs group of servers (see ``aaa_tacacs.*``) | dellos9 |
+| ``aaa_tacacs.group``          | string           | Configures name of the tacacs group of servers for AAA | dellos9  |
+| ``aaa_authentication.auth_list`` | list        | Configures named authentication list for hosts (see ``host.*``) | dellos9 |
+| ``auth_list.name``           | string         | Configures named authentication list | dellos9 |
+| ``auth_list.login_or_enable`` | string: enable,login         | Configures authentication list for login or enable | dellos9  |
+| ``auth_list.server``         | string: radius,tacacs+         | Configures AAA to use this list of all server hosts | dellos9 |
+| ``auth_list.use_password``   | string: line,local,enable,none         | Configures password to use for authentication | dellos9 |
+| ``auth_list.state``          | string: present,absent         | Removes the named authentication list if set to absent | dellos9 |
+| ``line_terminal``            | dictionary | Configures the terminal line (see ``line_terminal.*``) | dellos9 |
+| ``line_terminal.<terminal>`` | dictionary | Configures the primary or virtual terminal line (see ``<terminal>.*``); value can be console <line_number>, vty <line_number> | dellos9 |
+| ``<terminal>.authorization`` | dictionary | Configures authorization parameters of line terminal (see ``authorization.*``) | dellos9 |
+| ``authorization.commands``   | list        | Configures authorization for EXEC (shell) and config commands (see ``commands.*``) | dellos9  |
+| ``commands.enable_level``    | integer         | Configures enable level for authorization of commands at line terminal | dellos9  |
+| ``commands.role_name``       | string         | Configures user role for authorization of commands at line terminal; mutually exclusive with `enable_level` |  dellos9 |
+| ``commands.authorization_list_name`` | string         | Configures named authorization list for commands | dellos9 |
+| ``commands.state``           | string: present,absent         | Removes the authorization of commands from line terminal if set to absent | dellos9 |
+| ``authorization.exec``       | list        | Configures authorization for EXEC (shell) commands at line terminal (see ``exec.*``) | dellos9 |
+| ``exec.authorization_list_name`` | string         | Configures named authorization list for EXEC commands | dellos9 |
+| ``exec.state``               | string: present,absent         | Removes the authorization of EXEC (shell) from line terminal if set to absent | dellos9  |
+| ``<terminal>.accounting`` | dictionary | Configures accounting parameters of line terminal (see ``accounting.*``) | dellos9  |
+| ``accounting.commands``      | list        | Configures accounting for EXEC (shell) and config commands (see ``commands.*``) | dellos9 |
+| ``commands.enable_level``    | integer         | Configures enable level for accounting of commands at line terminal | dellos9|
+| ``commands.role_name``       | string         | Configures user role for accounting of commands at line terminal; mutually exclusive with ``enable_level`` | dellos9 |
+| ``commands.accounting_list_name`` | string         | Configures named accounting list for commands | dellos9 |
+| ``commands.state``           | string: present,absent         | Removes the accounting of commands from line terminal if set to absent | dellos9|
+| ``accounting.exec``          | list        | Configures accounting for EXEC (shell) commands at line terminal (see ``exec.*``) | dellos9  |
+| ``exec.accounting_list_name`` | string         | Configures named accounting list for EXEC commands | dellos9 |
+| ``exec.state``               | string: present,absent         | Removes the accounting of EXEC (shell) from line terminal if set to absent | dellos9 |
+| ``<terminal>.authentication`` | dictionary | Configures authentication parameters of line terminal (see ``authentication.*``) | dellos9 |
+| ``authentication.enable``    | string         | Configures the authentication list for privilege-level password authentication | dellos9 |
+| ``authentication.login``     | string         | Configures the authentication list for password checking | dellos9  |
 
-|        Key | Type                      | Notes                                                                                                                                                                                     |
-|------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| radius_server | dictionary        | Configures the radius server. See the following radius_server.* for each item.      |
-| radius_server.key | string (required), choices: 0,7,LINE           | Configures the authentication key for radius server. |
-| radius_server.key_string | string           | Configures the user key string. If key is 7, this variable takes the hidden user key string. If key is 0, takes the unencrypted user key(clear text). This variable is supported only if the value of radius_server.key is 7 or 0.                            |
-| radius_server.retransmit | integer         | Configures the number of retransmissions.                           |
-| radius_server.timeout | integer         | Configures timeout for retransmissions.                           |
-| radius_server.deadtime | integer         | Configures the server dead time.                           |
-| radius_server.group | dictionary         | Configures the group of radius servers. See the following group.* for each item.                           |
-| group.name | string(required)         | Configures the group name of the radius servers.                           |
-| group.host| dictionary         | Configures the radius server host in the group. See the following host.* for each item.                        |
-| host.ip | string         | Configures the radius server host address in the group.                           |
-| host.key | string (required), choices: 0,7,LINE           | Configures the authentication key. |
-| host.key_string | string           | Configures the user key string. If key is 7, this variable takes the hidden user key string. If key is 0, takes the unencrypted user key(clear text). This variable is supported only if the value of host.key is 7 or 0.                            |
-| host.retransmit | integer         | Configures the number of retransmissions.                           |
-| host.auth_port | integer         | Configures the authentication port. The value can be in the range 0-65535     |
-| host.timeout | Integer         | Configures timeout for retransmissions.                           |
-| host.state | string, choices: present,absent         | If set to absent, removes the host from group of radius server.                           |
-| group.vrf | dictionary         | Configures VRF for radius servers in the group. See the following vrf.* for each item.                        |
-| vrf.vrf_name | string(required)       | Configures the name of vrf for radius server group.                         |
-| vrf.source_intf | Integer         | Configures source interface for outgoing packets from servers in the group.      |
-| vrf.state | string, choices: present,absent         | If set to absent, removes the VRF from group of radius server.  |
-| group.state | string, choices: present,absent         | If set to absent, removes the radius server group.            |
-| radius_server.host| dictionary         | Configures the radius server host. See the following host.* for each item. |
-| host.ip | string         | Configures the radius server host address.                           |
-| host.key | string (required), choices: 0,7,LINE           | Configures the authentication key. |
-| host.key_string | string           | Configures the user key string. If key is 7, this variable takes the hidden user key string. If key is 0, takes the unencrypted user key(clear text). This variable is supported only if the value of host.key is 7 or 0.                            |
-| host.retransmit | integer         | Configures the number of retransmissions.                           |
-| host.auth_port | integer         | Configures the authentication port. The value can be in the range 0-65535     |
-| host.timeout | Integer         | Configures timeout for retransmissions.                           |
-| host.state | string, choices: present,absent         | If set to absent, removes the radius server host.           |
-| tacacs_server | dictionary        | Configures the tacacs server. See the following tacacs_server.* for each item.      |
-| tacacs_server.key | string (required), choices: 0,7,LINE           | Configures the authentication key for tacacs server. |
-| tacacs_server.key_string | string           | Configures the user key string. If key is 7, this variable takes the hidden user key string. If key is 0, takes the unencrypted user key(clear text). This variable is supported only if the value of tacacs_server.key is 7 or 0.                          |
-| tacacs_server.group | dictionary         | Configures the group of tacacs servers. See the following group.* for each item.                           |
-| group.name | string(required)         | Configures the group name of the tacacs servers.                           |
-| group.host| dictionary         | Configures the tacacs server host in the group. See the following host.* for each item.                        |
-| host.ip | string         | Configures the tacacs server host address in the group.                           |
-| host.key | string (required), choices: 0,7,LINE           | Configures the authentication key of tacacs server host. |
-| host.key_string | string           | Configures the user key string. If key is 7, this variable takes the hidden user key string. If key is 0, takes the unencrypted user key(clear text). This variable is supported only if the value of host.key is 7 or 0.                            |
-| host.retransmit | integer         | Configures the number of retransmissions.                           |
-| host.auth_port | integer         | Configures the authentication port. The value can be in the range 0-65535     |
-| host.timeout | Integer         | Configures timeout for retransmissions.                           |
-| host.state | string, choices: present,absent         | If set to absent, removes the host from group of tacacs server.                           |
-| group.vrf | dictionary         | Configures VRF for tacacs servers in the group. See the following vrf.* for each item.                        |
-| vrf.vrf_name | string(required)       | Configures the name of vrf for tacacs server group.                         |
-| vrf.source_intf | integer         | Configures source interface for outgoing packets from servers in the group.      |
-| vrf.state | string, choices: present,absent         | If set to absent, removes the VRF from group of tacacs server.  |
-| group.state | string, choices: present,absent         | If set to absent, removes the tacacs server group.            |
-| tacacs_server.host| dictionary         | Configures the tacacs server host. See the following host.* for each item. |
-| host.ip | string         | Configures the tacacs sever host address.                           |
-| host.key | string (required), choices: 0,7,LINE           | Configures the authentication key. |
-| host.key_string | string           | Configures the user key string. If key is 7, this variable takes the hidden user key string. If key is 0, takes the unencrypted user key(clear text). This variable is supported only if the value of host.key is 7 or 0.                            |
-| host.retransmit | integer         | Configures the number of retransmissions.                           |
-| host.auth_port | integer         | Configures the authentication port. The value can be in the range 0-65535     |
-| host.timeout | Integer         | Configures timeout for retransmissions.                           |
-| host.state | string, choices: present,absent         | If set to absent, removes the tacacs server host.           |
-| aaa_accounting | dictionary        | Configures accounting parameters. See the following aaa_accounting.* for each item.     |
-| aaa_accounting.commands | list        | Configures accounting for exec(shell) and config commands. See the following commands.* for each item.      |
-| commands.enable_level | integer         | Configures enable level for accounting of commands.                |
-| commands.role_name | string         | Configures user role for accounting of commands. This variable is mutually exclusive with enable_level.                |
-| commands.accounting_list_name | integer         | Configures named accounting list for commands.                |
-| commands.no_accounting | boolean        | Configures no accounting of commands.|
-| commands.record_option | string, choices: start-stop,stop-only,wait-start        | Configures options to record data.             |
-| commands.state | string, choices: present,absent         | If set to absent, removes the named accounting list for the commands.           |
-| aaa_accounting.exec | list        | Configures accounting for exec(shell) commands. See the following exec.* for each item.      |
-| exec.accounting_list_name | string         | Configures named accounting list for exec commands.                |
-| exec.no_accounting | boolean         | Configures no accounting of exec commands.|
-| exec.record_option | string, choices: start-stop,stop-only,wait-start      | Configures options to record data.       |
-| exec.state | string, choices: present,absent         | If set to absent, removes the named accounting list for the exec commands.           |
-| aaa_accounting.suppress | boolean        | Suppresses accounting for users with NULL username      |
-| aaa_accounting.dot1x | string, choices: none,start-stop,stop-only,wait-start        | Configures accounting for dot1x events.      |
-| aaa_accounting.rest | string, choices: none,start-stop,stop-only,wait-start        | Configures accounting for rest interface events.      |
-| aaa_authorization | dictionary        | Configures authorization parameters. See the following aaa_authorization.* for each item.      |
-| aaa_authorization.commands | list        | Configures authorization for exec(shell) and config commands. See the following commands.* for each item.      |
-| commands.enable_level | integer         | Configures enable level for authorization of commands.                |
-| commands.role_name | string         | Configures user role for authorization of commands. This variable is mutually exclusive with enable_level.                |
-| commands.authorization_list_name | string         | Configures named authorization list for commands.                |
-| commands.authorization_methiod | string, choices: none         | Configures no authorization of commands.|
-| commands.use_data | string, choices: local,tacacs+        | Configures data used for authorization.                |
-| commands.state | string, choices: present,absent         | If set to absent, removes the named authorization list for the commands.           | 
-| aaa_authorization.config_commands | boolean        | Configures authorization for configuration mode commands.      |
-| aaa_authorization.role_only | boolean        | Configures validation of authentication mode for user role.      |
-| aaa_authorization.exec | list        | Configures authorization for exec(shell) commands. See the following exec.* for each item.      |
-| exec.authorization_list_name | string         | Configures named authorization list for exec commands.                |
-| exec.authorization_methiod | string, choices: none         | Configures no authorization of exec commands.|
-| exec.use_data | string, choices: local,tacacs+        | Configures data used for authorization.                |
-| exec.state | string, choices: present,absent         | If set to absent, removes the named authorization list for the exec commands.           |
-| aaa_authentication | dictionary        | Configures authentication parameters. See the following aaa_authentication.* for each item.      |
-| aaa_radius | dictionary        | Configures AAA for radius group of servers. See the following aaa_radius.* for each item.     |
-| aaa_radius.group | string        | Configures name of the radius group of servers for AAA.      |
-| aaa_radius.auth_method | string, choices: pap,mschapv2    | Configures authentication method of radius group of servers for AAA.      |
-| aaa_tacacs | dictionary | Configures AAA for tacacs group of servers. See the following aaa_tacacs.* for each item.     |
-| aaa_tacacs.group | string        | Configures name of the tacacs group of servers for AAA.      |
-| aaa_authentication.auth_list | list        | Configures named authentication list for hosts. See the following host.* for each item.      |
-| auth_list.name | string         | Configures named authentication list.                |
-| auth_list.login_or_enable | string, choices: enable,login         | Configures authentication list for login or enable.     |
-| auth_list.server | string, choices: radius,tacacs+         | Configures AAA to use this list of all server hosts.     |
-| auth_list.use_password | string, choices: line,local,enable,none         | Configures password to use for authentication. |
-| auth_list.state | string, choices: present,absent         | If set to absent, removes the named authentication list.       |
-| line_terminal | dictionary | Configures the terminal line. See the following line_terminal.* for each item. |
-| line_terminal.&lt;terminal&gt; | dictionary | Configures the primary or virtual terminal line. The value can be of following: console &lt;line_number&gt; , vty &lt;line_number&gt;. See the following &lt;terminal&gt;.* for each item. |
-| &lt;terminal&gt;.authorization | dictionary | Configures authorization parameters of line terminal. See the following authorization.* for each item. |
-| authorization.commands | list        | Configures authorization for exec(shell) and config commands. See the following commands.* for each item.      |
-| commands.enable_level | integer         | Configures enable level for authorization of commands at line terminal.                |
-| commands.role_name | string         | Configures user role for authorization of commands at line terminal. This variable is mutually exclusive with enable_level.                |
-| commands.authorization_list_name | string         | Configures named authorization list for commands.                |
-| commands.state | string, choices: present,absent         | If set to absent, removes the authorization of commands from line terminal.           |
-| authorization.exec | list        | Configures authorization for exec(shell) commands at line terminal. See the following exec.* for each item.      |
-| exec.authorization_list_name | string         | Configures named authorization list for exec commands.           |
-| exec.state | string, choices: present,absent         | If set to absent, removes the authorization of exec(shell) from line terminal.           |
-| &lt;terminal&gt;.accounting | dictionary | Configures accounting parameters of line terminal. See the following accounting.* for each item. |
-| accounting.commands | list        | Configures accounting for exec(shell) and config commands. See the following commands.* for each item.      |
-| commands.enable_level | integer         | Configures enable level for accounting of commands at line terminal.    |
-| commands.role_name | string         | Configures user role for accounting of commands at line terminal. This variable is mutually exclusive with enable_level.                |
-| commands.accounting_list_name | string         | Configures named accounting list for commands.                |
-| commands.state | string, choices: present,absent         | If set to absent, removes the accounting of commands from line terminal.           |
-| accounting.exec | list        | Configures accounting for exec(shell) commands at line terminal. See the following exec.* for each item.      |
-| exec.accounting_list_name | string         | Configures named accounting list for exec commands.           |
-| exec.state | string, choices: present,absent         | If set to absent, removes the accounting of exec(shell) from line terminal.           |
-| &lt;terminal&gt;.authentication | dictionary | Configures authentication parameters of line terminal. See the following authentication.* for each item. |
-| authentication.enable | string         | Configures the authentication list for previliged level password authentication.    |
-| authentication.login | string         | Configures the authentication list for password checking.    |
+> **NOTE**: Asterisk (*) denotes the default value if none is specified.
 
-```
-Note: Asterisk (*) denotes the default value if none is specified.
-```
-
-Connection Variables
+Connection variables
 --------------------
 
-Ansible Dell EMC Networking roles require the following connection information to establish communication with the nodes in your inventory. This information can exist in the Ansible group_vars or host_vars directories, or in the playbook itself.
+Ansible Dell EMC Networking roles require connection information to establish communication with the nodes in your inventory. This information can exist in the Ansible *group_vars* or *host_vars* directories, or in the playbook itself.
 
+| Key         | Required | Choices    | Description                                         |
+|-------------|----------|------------|-----------------------------------------------------|
+| ``host``        | yes      |            | Specifies the hostname or address for connecting to the remote device over the specified transport. |
+| ``port``        | no       |            | Specifies the port used to build the connection to the remote device; if unspecified, the value defaults to 22 |
+| ``username``    | no       |            | Specifies the username that authenticates the CLI login connection to the remote device; if value is unspecified, the ANSIBLE_NET_USERNAME environment variable value is used |
+| ``password``    | no       |            | Specifies the password that authenticates the connection to the remote device; if value is unspecified, the ANSIBLE_NET_PASSWORD environment variable value is used |
+| ``authorize``   | no       | yes, no*   | Instructs the module to enter privileged mode on the remote device before sending any commands; if value is unspecified, the ANSIBLE_NET_AUTHORIZE environment variable value is used instead, and the device attempts to execute all commands in non-privileged mode |
+| ``auth_pass``   | no       |            | Specifies the password to use if required to enter privileged mode on the remote device; if *authorize* is set, to no, this key is not applicable; if value is unspecified, the ANSIBLE_NET_AUTH_PASS environment variable value is used |
+| ``provider``    | no       |            | Passes all connection arguments as a dictionary object; all constraints (such as required or choices) must be met either by individual arguments or values in this dictionary |
 
-|         Key | Required | Choices    | Description                              |
-| ----------: | -------- | ---------- | ---------------------------------------- |
-|        host | yes      |            | Hostname or address for connecting to the remote device over the specified ``transport`` variable. The value of this key is the destination address for the transport. |
-|        port | no       |            | Port used to build the connection to the remote device. If the value of this key is unspecified, the value defaults to 22. |
-|    username | no       |            | Configures the username that authenticates the connection to the remote device. The value of this key authenticates the CLI login. If this key does not specify a value, the value of environment variable ANSIBLE_NET_USERNAME is used instead. |
-|    password | no       |            | Specifies the password that authenticates the connection to the remote device. If this key does not specify a value, the value of environment variable ANSIBLE_NET_PASSWORD is used instead. |
-|   authorize | no       | yes, no*   | Instructs the module to enter privileged mode on the remote device before sending any commands. If this key does not specify a value, the value of environment variable ANSIBLE_NET_AUTHORIZE is used instead. If not specified, the device attempts to execute all commands in non-privileged mode.|
-|   auth_pass | no       |            | Specifies the password to use if required to enter privileged mode on the remote device. If ``authorize`` is set to no, then this key is not applicable. If this key does not specify a value, the value of environment variable ANSIBLE_NET_AUTH_PASS is used instead. |
-|   transport | yes      | cli*       | Configures the transport connection to use when connecting to the remote device. This key supports connectivity to the device over CLI (SSH).  |
-|    provider | no       |            | Convenient method that passes all of the above connection arguments as a dictionary object. All constraints (such as required or choices) must be met either by individual arguments or values in this dictionary. |
+> **NOTE**: Asterisk (*) denotes the default value if none is specified.
 
-
-```
-Note: Asterisk (*) denotes the default value if none is specified.
-```
 Dependencies
 ------------
 
-The dellos-aaa role is built on modules included in the core Ansible code. These modules were added in Ansible version 2.2.0.
+The *dellos-aaa* role is built on modules included in the core Ansible code. These modules were added in Ansible version 2.2.0.
 
-
-Example Playbook
+Example playbook
 ----------------
 
-The following example uses the dellos-aaa role to configure AAA for radius and tacacs servers. The example creates a ``hosts`` file with the switch details and corresponding variables. The hosts file should define the variable `` ansible_net_os_name `` with corresponding Dell EMC networking OS name. It writes a simple playbook that only references the dellos-aaa role.
+This example uses the *dellos-aaa* role to configure AAA for radius and TACACS servers. It creates a *hosts* file with the switch details and corresponding variables. The hosts file should define the *ansible_net_os_name* variable with the corresponding Dell EMC Networking OS name. 
 
-Sample ``hosts`` file:
+When *dellos_cfg_generate* is set to true, the variable generates the configuration commands as a .part file in the *build_dir* path. By default, it is set to false and it writes a simple playbook that only references the *dellos-aaa* role.
 
-    leaf1 ansible_host= <ip_address> ansible_net_os_name= <OS name(dellos9)>
+**Sample hosts file**
 
-Sample ``host_vars/leaf1``:
+    leaf1 ansible_host= <ip_address> ansible_net_os_name= <OS name(dellos9/dellos10)>
+
+**Sample host_vars/leaf1**
 
     hostname: leaf1
     provider:
@@ -196,7 +192,8 @@ Sample ``host_vars/leaf1``:
       password: xxxxx
       authorize: yes
       auth_pass: xxxxx
-      transport: cli
+    build_dir: ../temp/dellos9
+
     dellos_aaa:
       radius_server:
           key: radius
@@ -328,31 +325,12 @@ Sample ``host_vars/leaf1``:
             enable:
             login: console
 
-
-Simple playbook to setup system, ``leaf.yaml``:
+**Simple playbook to setup system - leaf.yaml**
 
     - hosts: leaf1
       roles:
          - Dell-Networking.dellos-aaa
 
-Then run with:
+**Run**
 
     ansible-playbook -i hosts leaf.yaml
-
-License
--------
-
-Copyright (c) 2017, Dell Inc. All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-

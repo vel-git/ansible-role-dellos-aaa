@@ -133,3 +133,21 @@ dellos_aaa:
             login_or_enable: login
             use_password: local
 
+# Sample vars for dellos10 device
+
+dellos_aaa:
+  radius_server:
+        retransmit: 5
+        timeout: 10
+        host:
+          - ip: 2001:4898:f0:f09b::1001
+            key: 0
+            auth_port: 3
+            state: present
+  aaa_authentication:
+        local_auth:
+          radius: true
+        radius_auth:
+          local: true
+        re_authenticate: true
+
