@@ -165,7 +165,7 @@ key {{ hostlist.key }}
                   {% else %}
 no key
                   {% endif %} 
-                {% endif %} 
+                {% endif %}
                 {% if (hostlist.timeout is defined and hostlist.timeout) %}
 timeout {{ hostlist.timeout }}
                 {% endif %}
@@ -184,11 +184,11 @@ key {{ hostlist.key }} {{ hostlist.key_string }}
 key {{ hostlist.key }}
                   {% else %}
 no key
-                  {% endif %} 
-                {% endif %} 
+                  {% endif %}
+                {% endif %}
                 {% if (hostlist.name is defined) %}
                   {% if (hostlist.name) %}
-name {{ hostlist.name }}
+name "{{ hostlist.name }}"
                   {% else %}
 no name
                   {% endif %}
@@ -200,7 +200,7 @@ timeout {{ hostlist.timeout }}
 auth-port {{ hostlist.auth_port }}
                 {% endif %}
 exit
-              {% endif %} 
+              {% endif %}
             {% endif %}
           {% endif %}
         {% endfor %}
@@ -221,11 +221,11 @@ key {{ acctlist.key }} {{ acctlist.key_string }}
 key {{ acctlist.key }}
                   {% else %}
 no key
-                  {% endif %} 
-                {% endif %} 
+                  {% endif %}
+                {% endif %}
                 {% if (acctlist.name is defined) %}
                   {% if (acctlist.name) %}
-name {{ acctlist.name }}
+name "{{ acctlist.name }}"
                   {% else %}
 no name
                   {% endif %}
@@ -234,7 +234,7 @@ no name
 acct-port {{ acctlist.auth_port }}
                 {% endif %}
 exit
-            {% endif %} 
+            {% endif %}
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -254,11 +254,11 @@ key {{ authlist.key }} {{ authlist.key_string }}
 key {{ authlist.key }}
                   {% else %}
 no key
-                  {% endif %} 
-                {% endif %} 
+                  {% endif %}
+                {% endif %}
                 {% if (authlist.name is defined) %}
                   {% if (authlist.name) %}
-name {{ authlist.name }}
+name "{{ authlist.name }}"
                   {% else %}
 no name
                   {% endif %}
@@ -294,9 +294,8 @@ attribute {{ attributelist.id }} {{ attributelist.type }}
                     {% endif %}
                   {% endfor %}
                 {% endif %}
-
 exit
-            {% endif %} 
+            {% endif %}
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -313,7 +312,6 @@ no {{ server }} attribute {{ attributelist.id }} {{ attributelist.type }}
           {% endif %}
         {% endfor %}
       {% endif %}
-
     {% endif %}
   {% endif %}
 {% endfor %}
@@ -327,13 +325,13 @@ no aaa authentication {{ auth_list.login_or_enable }} {{ auth_list.name }}
             {% else %}
               {% if auth_list.server is defined and auth_list.server %}
                 {% if auth_list.use_password is defined and auth_list.use_password %}
-aaa authentication {{ auth_list.login_or_enable }} {{ auth_list.name }} {{ auth_list.server }} {{ auth_list.use_password }}
+aaa authentication {{ auth_list.login_or_enable }} "{{ auth_list.name }}" {{ auth_list.server }} {{ auth_list.use_password }}
                 {% else %}
-aaa authentication {{ auth_list.login_or_enable }} {{ auth_list.name }} {{ auth_list.server }}
+aaa authentication {{ auth_list.login_or_enable }} "{{ auth_list.name }}" {{ auth_list.server }}
                 {% endif %}
               {% else %}
                 {% if auth_list.use_password is defined and auth_list.use_password %}
-aaa authentication {{ auth_list.login_or_enable }} {{ auth_list.name }} {{ auth_list.use_password }}
+aaa authentication {{ auth_list.login_or_enable }} "{{ auth_list.name }}" {{ auth_list.use_password }}
                 {% endif %}
               {% endif %}
             {% endif %}
@@ -360,13 +358,13 @@ no aaa authorization exec {{ command.authorization_list_name }}
           {% else %}
             {% if command.use_data is defined and command.use_data %}
               {% if command.authorization_method is defined and command.authorization_method %}
-aaa authorization exec {{ command.authorization_list_name }} {{ command.use_data }} {{ command.authorization_method }}
+aaa authorization exec "{{ command.authorization_list_name }}" {{ command.use_data }} {{ command.authorization_method }}
               {% else %}
-aaa authorization exec {{ command.authorization_list_name }} {{ command.use_data }}
+aaa authorization exec "{{ command.authorization_list_name }}" {{ command.use_data }}
               {% endif %}
             {% else %}
               {% if command.authorization_method is defined and command.authorization_method %}
-aaa authorization exec {{ command.authorization_list_name }} {{ command.authorization_method }}
+aaa authorization exec "{{ command.authorization_list_name }}" {{ command.authorization_method }}
               {% endif %}
             {% endif %}
           {% endif %}
@@ -382,7 +380,6 @@ no aaa authorization network default radius
       {% endif %}
     {% endif %}
   {% endif %}
-
   {% if dellos_aaa.aaa_accounting is defined and dellos_aaa.aaa_accounting %}
     {% set aaa_accounting = dellos_aaa.aaa_accounting %}
     {% if aaa_accounting.dot1x is defined %}
