@@ -248,20 +248,17 @@ dellos_aaa:
             use_password: local
 
 # Sample vars for dellos10 device
-
 dellos_aaa:
-  radius_server:
-        retransmit: 5
-        timeout: 10
-        host:
-          - ip: 2001:4898:f0:f09b::1001
-            key: 0
-            auth_port: 3
-            state: present
+  tacacs_server:
+      host: 10.10.10.10
+      key: 0
+      value: 0
+      auth_port: 3
+      state: "absent"
   aaa_authentication:
-        local_auth:
-          radius: true
-        radius_auth:
-          local: true
+        login:
+            console: true
+            type: group radius group tacacs+ local
+            state: "absent"
         re_authenticate: true
 
